@@ -1,0 +1,15 @@
+version: "3.9"
+
+services:
+  web:
+    build: .
+    ports:
+      - "8050:8050"
+    environment:
+      - PYTHONUNBUFFERED=1
+      - TRANSFORMERS_CACHE=/app/.cache/transformers
+    volumes:
+      - ./annotation_results:/app/annotation_results
+      - ./models:/nfs/work/debi5729
+      - ./hf_cache:/app/.cache/transformers
+    restart: unless-stopped

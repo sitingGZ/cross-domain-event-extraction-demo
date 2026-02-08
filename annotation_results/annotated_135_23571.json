@@ -1,0 +1,231 @@
+{
+  "doc_id": "135_23571",
+  "source": "There are indications , however , that certain personnel who were intimately involved in the program , including Basson , may have provided technical knowledge , equipment , or materials to `` rogue regimes '' such as Libya , to foreign intelligence personnel , to unscrupulous black marketers trafficking in dangerous weapons , and perhaps also -- if certain journalists can be believed -- to elements of a shadowy international network of right - wing extremists .",
+  "events": {
+    "geneva": {
+      "pipeline": {
+        "doc_id": "",
+        "source": "There are indications , however , that certain personnel who were intimately involved in the program , including Basson , may have provided technical knowledge , equipment , or materials to `` rogue regimes '' such as Libya , to foreign intelligence personnel , to unscrupulous black marketers trafficking in dangerous weapons , and perhaps also -- if certain journalists can be believed -- to elements of a shadowy international network of right - wing extremists .",
+        "events": [
+          {
+            "trigger": {
+              "text": "involved",
+              "type": "Participation",
+              "offset": [
+                77,
+                84
+              ]
+            },
+            "arguments": [
+              {
+                "text": "in the program",
+                "role": "Event",
+                "offset": [
+                  86,
+                  99
+                ]
+              },
+              {
+                "text": "certain personnel",
+                "role": "Participants",
+                "offset": [
+                  39,
+                  55
+                ]
+              }
+            ]
+          },
+          {
+            "trigger": {
+              "text": "provided",
+              "type": "Supply",
+              "offset": [
+                131,
+                138
+              ]
+            },
+            "arguments": [
+              {
+                "text": "to",
+                "role": "Recipient",
+                "offset": [
+                  187,
+                  188
+                ]
+              },
+              {
+                "text": "certain personnel who were intimately involved in the program , including Basson ,",
+                "role": "Supplier",
+                "offset": [
+                  39,
+                  120
+                ]
+              },
+              {
+                "text": "technical knowledge , equipment , or materials",
+                "role": "Theme",
+                "offset": [
+                  140,
+                  185
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "e2e": {
+        "doc_id": "",
+        "source": "There are indications , however , that certain personnel who were intimately involved in the program , including Basson , may have provided technical knowledge , equipment , or materials to `` rogue regimes '' such as Libya , to foreign intelligence personnel , to unscrupulous black marketers trafficking in dangerous weapons , and perhaps also -- if certain journalists can be believed -- to elements of a shadowy international network of right - wing extremists .",
+        "events": [
+          {
+            "trigger": {
+              "text": "involved",
+              "type": "Participation",
+              "offset": [
+                77,
+                84
+              ]
+            },
+            "arguments": [
+              {
+                "text": "in the program",
+                "role": "Event",
+                "offset": [
+                  86,
+                  99
+                ]
+              },
+              {
+                "text": "certain personnel",
+                "role": "Participants",
+                "offset": [
+                  39,
+                  55
+                ]
+              }
+            ]
+          },
+          {
+            "trigger": {
+              "text": "provided",
+              "type": "Supply",
+              "offset": [
+                131,
+                138
+              ]
+            },
+            "arguments": [
+              {
+                "text": "to",
+                "role": "Recipient",
+                "offset": [
+                  187,
+                  188
+                ]
+              },
+              {
+                "text": "certain personnel who were intimately involved in the program , including Basson ,",
+                "role": "Supplier",
+                "offset": [
+                  39,
+                  120
+                ]
+              },
+              {
+                "text": "technical knowledge , equipment , or materials",
+                "role": "Theme",
+                "offset": [
+                  140,
+                  185
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "merged": {
+        "events": []
+      }
+    }
+  },
+  "complete_e2e": {
+    "geneva": {
+      "doc_id": "135_23571",
+      "source": "There are indications , however , that certain personnel who were intimately involved in the program , including Basson , may have provided technical knowledge , equipment , or materials to `` rogue regimes '' such as Libya , to foreign intelligence personnel , to unscrupulous black marketers trafficking in dangerous weapons , and perhaps also -- if certain journalists can be believed -- to elements of a shadowy international network of right - wing extremists .",
+      "events": [
+        {
+          "trigger": {
+            "text": "involved",
+            "type": "Participation",
+            "offset": [
+              77,
+              84
+            ]
+          },
+          "arguments": [
+            {
+              "text": "certain personnel",
+              "role": "Participants",
+              "offset": [
+                39,
+                55
+              ]
+            },
+            {
+              "text": "who",
+              "role": "Participants",
+              "offset": [
+                57,
+                59
+              ]
+            },
+            {
+              "text": "in the program",
+              "role": "Event",
+              "offset": [
+                86,
+                99
+              ]
+            }
+          ]
+        },
+        {
+          "trigger": {
+            "text": "provided",
+            "type": "Supply",
+            "offset": [
+              131,
+              138
+            ]
+          },
+          "arguments": [
+            {
+              "text": "certain personnel who were intimately involved in the",
+              "role": "Supplier",
+              "offset": [
+                39,
+                91
+              ]
+            },
+            {
+              "text": "technical",
+              "role": "Theme",
+              "offset": [
+                140,
+                148
+              ]
+            },
+            {
+              "text": "to",
+              "role": "Recipient",
+              "offset": [
+                187,
+                188
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  }
+}
