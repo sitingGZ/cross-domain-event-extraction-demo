@@ -4,7 +4,6 @@
 
 ### 1. Launch the Application
 ```bash
-cd /user/debi5729/Cross-Domain-Text-Event-Extraction
 python web_dash_app.py
 ```
 
@@ -28,16 +27,13 @@ Create a JSON file with documents in this format:
 }
 ```
 
-A sample file is provided: `sample_documents.json`
-
----
 
 ## Step-by-Step Workflow
 
 ### Step 1: Upload Documents
 1. Click the upload area in the "1. Upload Data" section
 2. Select your JSON file
-3. System will validate and show "✓ Loaded X documents"
+3. System will validate and show " Loaded X documents"
 4. Configuration options become enabled
 
 ### Step 2: Configure Settings
@@ -104,8 +100,8 @@ Two options available after argument extraction:
 #### Option B: Save & Finish
 1. Click "Save & Finish" button
 2. All accumulated results are saved to a JSON file
-3. File location: `/user/debi5729/Cross-Domain-Text-Event-Extraction/annotation_results/`
-4. File name: `annotated_{doc_id}_{random_id}.json`
+3. File location: `{PATH TO}/annotation_results/`
+4. File name: `annotated_{doc_id}.json`
 
 ---
 
@@ -168,22 +164,6 @@ Two options available after argument extraction:
 
 ---
 
-## Color Guide
-
-### Trigger Highlighting
-| Mode | Color | Hex Code |
-|------|-------|----------|
-| Pipeline | Yellow | #fff3cd |
-| E2E | Blue | #cfe2ff |
-| Merged | Green | #d1e7dd |
-
-### Argument Role Colors
-- Auto-assigned from palette of 6 colors
-- Consistent within a document
-- Helps distinguish between different argument roles
-
----
-
 ## Tips & Best Practices
 
 ### 1. Dataset Selection
@@ -204,38 +184,7 @@ Two options available after argument extraction:
   - Pipeline: More conservative (two-step process)
   - E2E: Joint modeling (captures dependencies)
 
-### 4. Troubleshooting
-- **Model not found**: Ensure model paths exist in file system
-- **Empty results**: Try different text or model type
-- **Memory issues**: Restart browser and app if memory accumulates
-- **Slow inference**: First run loads model, subsequent runs use cache
-
----
-
-## Advanced Features
-
-### 1. Batch Processing
-While the interface is designed for single documents:
-- Upload multiple documents
-- Process them one by one
-- Save results after each document
-- Results accumulate in `annotation_results/` directory
-
-### 2. Model Paths
-Edit in `web_dash_app.py` `get_model_path()` function:
-```python
-def get_model_path(model_type: str, dataset: str):
-    tokenizer_dir = "google-t5/t5-base"
-    
-    if model_type == "cross-domain":
-        model_dir = "path/to/cross-domain/model"
-    else:
-        model_dir = f"path/to/domain-specific/{dataset}/model"
-    
-    return tokenizer_dir, model_dir
-```
-
-### 3. Output Directory
+### 4. Output Directory
 Change in `save_and_finish()` callback:
 ```python
 output_dir = Path("/custom/output/path")
@@ -264,14 +213,6 @@ Currently none, but can be added. Navigation via mouse clicks on buttons.
 
 ---
 
-## Browser Compatibility
-- Chrome/Chromium: ✅ Recommended
-- Firefox: ✅ Supported
-- Safari: ✅ Supported
-- Edge: ✅ Supported
-
----
-
 ## Performance Metrics
 
 | Operation | Time |
@@ -286,10 +227,10 @@ Currently none, but can be added. Navigation via mouse clicks on buttons.
 ## Support & Feedback
 
 For issues or questions:
-1. Check the main README.md
+1. Check the main WEB_DASH_USAGE_GUIDE_README.md
 2. Review error messages in browser console
 3. Check server logs in terminal
-4. Contact: [Your contact info]
+4. Contact: []
 
 ---
 
@@ -319,10 +260,7 @@ Here's a complete example:
 
 ---
 
-## Next Steps
 
-1. **Start the app**: `python web_dash_app.py`
-2. **Upload test data**: Use `sample_documents.json`
 3. **Explore results**: See event detection highlighting
 4. **Experiment**: Try different datasets and models
 5. **Integrate**: Use saved results in your pipeline
