@@ -632,7 +632,7 @@ def create_navbar() -> dbc.Navbar:
             dbc.Nav([
                 dbc.NavItem(dbc.NavLink("Introduction", href="/", active="exact")),
                 dbc.NavItem(dbc.NavLink("Playground", href="/playground", active="exact")),
-                dbc.NavItem(dbc.NavLink("Annotation App", href="/app", active="exact")),
+                dbc.NavItem(dbc.NavLink("Event Extraction", href="/app", active="exact")),
             ], className="ms-auto", navbar=True),
         ], fluid=True),
         color="light",
@@ -697,7 +697,7 @@ def create_intro_layout() -> dbc.Container:
         dbc.Row([
             dbc.Col([
                 dbc.Card([
-                    dbc.CardHeader(html.H5("Features")),
+                    dbc.CardHeader(html.Label("Features")),
                     dbc.CardBody([
                         html.Ul([
                             html.Li("File upload (JSON with document strings)"),
@@ -714,7 +714,7 @@ def create_intro_layout() -> dbc.Container:
             ], md=7),
             dbc.Col([
                 dbc.Card([
-                    dbc.CardHeader(html.H5("Modes")),
+                    dbc.CardHeader(html.Label("Modes")),
                     dbc.CardBody([
                         html.Ul([
                             html.Li("Pipeline: Stage 1. Trigger Identification + Trigger Classification: Stage 2. Argument Extraction"),
@@ -722,7 +722,7 @@ def create_intro_layout() -> dbc.Container:
                             html.Li("Merged: Combine pipeline + end-to-end triggers for Stage 2"),
                             html.Li("Complete E2E: One-step trigger + argument extraction"),
                         ]),
-                        dbc.Button("Open Annotation App", href="/app", color="primary", className="mt-2")
+                        dbc.Button("Go to Event Extraction", href="/app", color="primary", className="mt-2")
                     ])
                 ])
             ], md=5)
@@ -751,7 +751,7 @@ def create_playground_layout() -> dbc.Container:
         dbc.Row([
             dbc.Col([
                 dbc.Card([
-                    dbc.CardHeader(html.H5("Settings")),
+                    dbc.CardHeader(html.Label("Settings")),
                     dbc.CardBody([
                         html.Label("Dataset", className="fw-bold"),
                         dcc.Dropdown(
@@ -778,15 +778,15 @@ def create_playground_layout() -> dbc.Container:
             ], md=2),
             dbc.Col([
                 dbc.Card([
-                    dbc.CardHeader(html.H5("Event Detection Output")),
+                    dbc.CardHeader(html.Label("Event Detection Output")),
                     dbc.CardBody(html.Div(id="pg-detection-results", className="small"))
                 ]),
                 dbc.Card([
-                    dbc.CardHeader(html.H5("Argument Extraction Output")),
+                    dbc.CardHeader(html.Label("Argument Extraction Output")),
                     dbc.CardBody(html.Div(id="pg-ae-results", className="small"))
                 ]),
                 dbc.Card([
-                    dbc.CardHeader(html.H5("Complete E2E Output")),
+                    dbc.CardHeader(html.Label("Complete E2E Output")),
                     dbc.CardBody(html.Div(id="pg-e2e-results", className="small"))
                 ])
             ], md=10)
@@ -795,215 +795,232 @@ def create_playground_layout() -> dbc.Container:
 
 
 def create_extraction_layout() -> dbc.Container:
-    """Create the main annotation app layout."""
+    """Create the main event extraction layout."""
     return dbc.Container([
+
+        # Store components for state management
+        dcc.Store(id='uploaded-data-store'),
+        dcc.Store(id='current-document-store'),
+        dcc.Store(id='event-detection-results-store'),
+        dcc.Store(id='complete-e2e-results-store'),
+        dcc.Store(id='all-results-store'),
+        dcc.Store(id='detection-progress-store', data=0),
+        dcc.Store(id='extraction-progress-store', data=0),
+        dcc.Store(id='detection-running', data=False),
+        dcc.Store(id='extraction-running', data=False),
+
+        # Interval components for progress updates
+        dcc.Interval(id='detection-interval', interval=500, n_intervals=0, disabled=True),
+        dcc.Interval(id='extraction-interval', interval=500, n_intervals=0, disabled=True),
+
+        # File Upload Section
+        dbc.Card(
+            dbc.CardBody([
+                dcc.Upload(
+                    id='upload-data',
+                    children=html.Div([
+                        "Drag and Drop or ",
+                        html.A("Select Files"),
+                        " (JSON with 'documents' array containing 'id' and 'text' fields)"
+                    ]),
+                    style={
+                        'width': '100%',
+                        'height': '30px',
+                        'lineHeight': '30px',
+                        'borderWidth': '1px',
+                        'borderStyle': 'dashed',
+                        'borderRadius': '5px',
+                        'textAlign': 'center',
+                        'margin': '10px'
+                    },
+                    multiple=False
+                ),
+                html.Div(id='upload-status', className="mt-2")
+            ]),
+            className="mb-2"
+        ),
+
+        # Document Selection Section
+        dbc.Card([
+            dbc.CardHeader(
+                dbc.Row([
+                    dbc.Col([
+                        html.Strong("Select a document")
+                    ], md=2),
+                    dbc.Col([
+                        dcc.Dropdown(id='document-selector', placeholder="Select a document...", disabled=True)
+                    ], md=8),
+                    dbc.Col([
+                        dbc.Button(
+                            "Next",
+                            id='next-document-btn',
+                            color="secondary",
+                            className="w-100",
+                            disabled=True
+                        )
+                    ], md=2)
+                ], className="g-2 align-items-center")
+            ),
+            dbc.CardBody([
+                html.Div(id='document-display', className="mt-3")
+            ])
+        ], className="mb-2"),
+
         dbc.Row([
             dbc.Col([
-                html.H1("Cross-domain Event Extraction", className="mb-4 mt-4")
-            ])
-        ]),
-    
-    # Store components for state management
-    dcc.Store(id='uploaded-data-store'),
-    dcc.Store(id='current-document-store'),
-    dcc.Store(id='event-detection-results-store'),
-    dcc.Store(id='complete-e2e-results-store'),
-    dcc.Store(id='all-results-store'),
-    dcc.Store(id='detection-progress-store', data=0),
-    dcc.Store(id='extraction-progress-store', data=0),
-    dcc.Store(id='detection-running', data=False),
-    dcc.Store(id='extraction-running', data=False),
-    
-    # Interval components for progress updates
-    dcc.Interval(id='detection-interval', interval=500, n_intervals=0, disabled=True),
-    dcc.Interval(id='extraction-interval', interval=500, n_intervals=0, disabled=True),
-    
-    # File Upload Section
-    dbc.Card([
-        dbc.CardHeader(html.H5("Upload Documents")),
-        dbc.CardBody([
-            dcc.Upload(
-                id='upload-data',
-                children=html.Div([
-                    "Drag and Drop or ",
-                    html.A("Select Files"),
-                    " (JSON with 'documents' array containing 'id' and 'text' fields)"
-                ]),
-                style={
-                    'width': '100%',
-                    'height': '60px',
-                    'lineHeight': '60px',
-                    'borderWidth': '1px',
-                    'borderStyle': 'dashed',
-                    'borderRadius': '5px',
-                    'textAlign': 'center',
-                    'margin': '10px'
-                },
-                multiple=False
-            ),
-            html.Div(id='upload-status', className="mt-2")
-        ])
-    ], className="mb-4"),
-    
-    # Document Selection Section
-    dbc.Card([
-        dbc.CardHeader(html.H5("Select a document")),
-        dbc.CardBody([
-            dbc.Row([
-                dbc.Col([
-                    dcc.Dropdown(id='document-selector', placeholder="Select a document...", disabled=True),
-                ], md=10),
-                dbc.Col([
-                    dbc.Button(
-                        "Next",
-                        id='next-document-btn',
-                        color="secondary",
-                        className="w-100",
-                        disabled=True
-                    )
-                ], md=2)
-            ], className="g-2"),
-            html.Div(id='document-display', className="mt-3")
-        ])
-    ], className="mb-4"),
-    
-    # Stage 1: Event Detection
-    dbc.Card([
-        dbc.CardHeader(html.H5("Stage 1: Event Detection")),
-        dbc.CardBody([
-            # Configuration for Event Detection
-            dbc.Row([
-                dbc.Col([
-                    html.Label("Select Dataset (event schema):"),
-                    dcc.Dropdown(
-                        id='dataset-selector',
-                        options=[{"label": ds, "value": ds} for ds in DATASETS],
-                        placeholder="Select a dataset...",
-                        disabled=True
-                    )
-                ], md=4),
-                dbc.Col([
-                    html.Label("Select Model Type for Event Detection:"),
-                    dcc.Dropdown(
-                        id='model-type-selector-stage1',
-                        options=[{"label": mt, "value": mt} for mt in MODEL_TYPES],
-                        value="domain-specific",
-                        disabled=True
-                    )
-                ], md=4),
-                dbc.Col([
-                    
-                    dbc.Button(
-                        "Run Event Detection",
-                        id='run-detection-btn',
-                        color="primary",
-                        disabled=True,
-                        className="w-100"
-                    ), 
-                    html.Div([
-                        
-                       
-                       
-                        dbc.Progress(
-                            id='detection-progress',
-                            value=0,
-                            min=0,
-                            max=100,
-                            style={"display": "none"}
-                        )
+                dbc.Card([
+                    dbc.CardHeader(html.Strong("Two-Stage Event Extraction (Pipeline)")),
+                    dbc.CardBody([
+                        dbc.Row([
+                            dbc.Col([
+                                dbc.Card([
+                                    dbc.CardHeader(
+                                        dbc.Row([
+                                            dbc.Col([
+                                                html.Strong("Stage 1: ")
+                                            ], md=2),
+                                            dbc.Col([
+                                                dcc.Dropdown(
+                                                    id='dataset-selector',
+                                                    options=[{"label": ds, "value": ds} for ds in DATASETS],
+                                                    placeholder="Dataset",
+                                                    disabled=True
+                                                )
+                                            ], md=2),
+                                            dbc.Col([
+                                                dcc.Dropdown(
+                                                    id='model-type-selector-stage1',
+                                                    options=[{"label": mt, "value": mt} for mt in MODEL_TYPES],
+                                                    value="domain-specific",
+                                                    placeholder="Model type",
+                                                    disabled=True
+                                                )
+                                            ], md=4),
+                                            dbc.Col([
+                                                dbc.Button(
+                                                    "Run Event Detection",
+                                                    id='run-detection-btn',
+                                                    color="primary",
+                                                    disabled=True,
+                                                    className="w-100"
+                                                )
+                                            ], md=4)
+                                        ], className="g-2 align-items-center")
+                                    ),
+                                    dbc.CardBody([
+                                        dbc.Progress(
+                                            id='detection-progress',
+                                            value=0,
+                                            min=0,
+                                            max=100,
+                                            style={"display": "none"}
+                                        ),
+                                        html.Div(id='detection-status', className="text-center"),
+                                        html.Div(id='detection-progress-text', className="text-center small text-muted", style={"marginTop": "5px"}),
+                                        html.Div(id='detection-results', className="mt-3")
+                                    ])
+                                ], className="h-100"),
+                            ], md=6),
+                            dbc.Col([
+                                dbc.Card([
+                                    dbc.CardHeader(
+                                        dbc.Row([
+                                            dbc.Col([
+                                                html.Strong("Stage 2:")
+                                            ], md=2),
+                                            dbc.Col([
+                                                dcc.Dropdown(
+                                                    id='model-type-selector-stage2',
+                                                    options=[{"label": mt, "value": mt} for mt in MODEL_TYPES],
+                                                    value="cross-domain",
+                                                    placeholder="Model type",
+                                                    disabled=True
+                                                )
+                                            ], md=4),
+                                            dbc.Col([
+                                                dbc.Button(
+                                                    "Run Event Arguments Extraction",
+                                                    id='validate-detection-btn',
+                                                    color="success",
+                                                    disabled=True,
+                                                    className="w-100"
+                                                )
+                                            ], md=6)
+                                        ], className="g-2 align-items-center")
+                                    ),
+                                    dbc.CardBody([
+                                        html.Div([
+                                            dbc.Progress(
+                                                id='extraction-progress',
+                                                value=10,
+                                                min=0,
+                                                max=100,
+                                                color="success",
+                                            ),
+                                            html.Div(id='extraction-progress-text', className="text-left small text-muted", style={"marginTop": "5px"})
+                                        ], style={"marginTop": "10px"}),
+                                        html.Div(id='argument-extraction-results', className="mt-3", style={"display": "none"}),
+                                    ])
+                                ], className="h-100"),
+                            ], md=6),
+                        ], className="g-2")
+                        ,
+                        html.Div(id='validation-message', className="mt-2")
                     ])
-                ], md=4),
-            ], className="mb-3"),
-             html.Div(id='detection-status', className="text-center"),
-             html.Div(id='detection-progress-text', className="text-center small text-muted", style={"marginTop": "5px"}),
-            html.Div(id='detection-results', className="mt-3")
-        ])
-    ], className="mb-4"),
-    
-    # Stage 2: Event Argument Extraction
-    dbc.Card([
-        dbc.CardHeader(html.H5("Stage 2: Event Argument Extraction")),
-        dbc.CardBody([
-            # Configuration for Argument Extraction
-            dbc.Row([
-                dbc.Col([
-                    html.Label("Select Model Type for Argument Extraction:"),
-                    dcc.Dropdown(
-                        id='model-type-selector-stage2',
-                        options=[{"label": mt, "value": mt} for mt in MODEL_TYPES],
-                        value="cross-domain",
-                        disabled=True
-                    )
-                ], md=6),
-                dbc.Col([
-                    html.Label("Extract Arguments:"),
-                    dbc.Button(
-                        "Extract Event Arguments",
-                        id='validate-detection-btn',
-                        color="success",
-                        disabled=True,
-                        className="w-100"
-                    )
-                ], md=6)
-            ], className="mb-3"),
-            html.Div([
-                dbc.Progress(
-                    id='extraction-progress',
-                    value=10,
-                    min=0,
-                    max=100,
-                    color = "success",
-                ),
-                html.Div(id='extraction-progress-text', className="text-left small text-muted", style={"marginTop": "5px"})
-            ], style={"marginTop": "10px"}),
-            
-            # Argument Extraction Results
-            html.Div(id='argument-extraction-results', className="mt-3", style={"display": "none"}),
-            
-            # Save Results Button now shown in Complete E2E section
-        ])
-    ], className="mb-4"),
+                ], className="mb-2"),
+            ], md=12)
+        ], className="mb-2"),
 
-    # Complete E2E: One-step trigger + argument extraction
-    dbc.Card([
-        dbc.CardHeader(html.H5("Complete Event Extraction (End-to-End)")),
-        dbc.CardBody([
-            dbc.Row([
-                dbc.Col([
-                    html.Label("Select Dataset (event schema):"),
-                    dcc.Dropdown(
-                        id='e2e-dataset-selector',
-                        options=[{"label": ds, "value": ds} for ds in DATASETS],
-                        placeholder="Select a dataset...",
-                        disabled=True
-                    )
-                ], md=4),
-                dbc.Col([
-                    html.Label("Select Model Type for Complete E2E:"),
-                    dcc.Dropdown(
-                        id='model-type-selector-e2e',
-                        options=[{"label": mt, "value": mt} for mt in MODEL_TYPES],
-                        value="cross-domain",
-                        disabled=True
-                    )
-                ], md=4),
-                dbc.Col([
-                    dbc.Button(
-                        "Run Complete E2E",
-                        id='run-complete-e2e-btn',
-                        color="info",
-                        disabled=True,
-                        className="w-100"
-                    )
-                ], md=4)
-            ], className="mb-3"),
-            html.Div(id='complete-e2e-status', className="text-center"),
-            html.Div(id='complete-e2e-results', className="mt-3", style={"display": "none"}),
-            html.Div(id='save-button-container', className="mt-3"),
-            html.Div(id='validation-message', className="mt-3")
+        dbc.Row([
+            dbc.Col([
+                dbc.Card([
+                    dbc.CardHeader(
+                        dbc.Row([
+                            dbc.Col([
+                                html.Strong("Complete Event Extraction (End-to-End)")
+                            ], md=3),
+                            dbc.Col([
+                                dcc.Dropdown(
+                                    id='e2e-dataset-selector',
+                                    options=[{"label": ds, "value": ds} for ds in DATASETS],
+                                    placeholder="Dataset",
+                                    disabled=True
+                                )
+                            ], md=3),
+                            dbc.Col([
+                                dcc.Dropdown(
+                                    id='model-type-selector-e2e',
+                                    options=[{"label": mt, "value": mt} for mt in MODEL_TYPES],
+                                    value="cross-domain",
+                                    placeholder="Model type",
+                                    disabled=True
+                                )
+                            ], md=3),
+                            dbc.Col([
+                                dbc.Button(
+                                    "Run Complete E2E",
+                                    id='run-complete-e2e-btn',
+                                    color="info",
+                                    disabled=True,
+                                    className="w-100"
+                                )
+                            ], md=3)
+                        ], className="g-2 align-items-center")
+                    ),
+                    dbc.CardBody([
+                        html.Div(id='complete-e2e-status', className="text-center"),
+                        html.Div(id='complete-e2e-results', className="mt-2", style={"display": "none"}),
+                    ])
+                ], className="mb-2"),
+            ], md=12)
+        ], className="mb-2"),
+
+        dbc.Row([
+            dbc.Col([
+                html.Div(id='save-button-container', className="mt-3")
+            ])
         ])
-    ], className="mb-4"),
-    
+
     ], fluid=True, style={"backgroundColor": "#f8f9fa", "paddingBottom": "30px"})
 
 
@@ -1397,6 +1414,22 @@ def toggle_next_document_button(selected_idx, data):
 
 @callback(
     Output('document-selector', 'value', allow_duplicate=True),
+    Output('event-detection-results-store', 'data', allow_duplicate=True),
+    Output('detection-results', 'children', allow_duplicate=True),
+    Output('detection-status', 'children', allow_duplicate=True),
+    Output('validate-detection-btn', 'disabled', allow_duplicate=True),
+    Output('argument-extraction-results', 'children', allow_duplicate=True),
+    Output('argument-extraction-results', 'style', allow_duplicate=True),
+    Output('complete-e2e-results-store', 'data', allow_duplicate=True),
+    Output('complete-e2e-results', 'children', allow_duplicate=True),
+    Output('complete-e2e-results', 'style', allow_duplicate=True),
+    Output('complete-e2e-status', 'children', allow_duplicate=True),
+    Output('save-button-container', 'children', allow_duplicate=True),
+    Output('validation-message', 'children', allow_duplicate=True),
+    Output('detection-progress-store', 'data', allow_duplicate=True),
+    Output('extraction-progress-store', 'data', allow_duplicate=True),
+    Output('detection-running', 'data', allow_duplicate=True),
+    Output('extraction-running', 'data', allow_duplicate=True),
     Input('next-document-btn', 'n_clicks'),
     State('document-selector', 'value'),
     State('uploaded-data-store', 'data'),
@@ -1411,7 +1444,25 @@ def go_to_next_document(n_clicks, selected_idx, data):
     next_idx = min(selected_idx + 1, len(documents) - 1)
     if next_idx == selected_idx:
         raise PreventUpdate
-    return next_idx
+    return (
+        next_idx,
+        None,
+        None,
+        None,
+        True,
+        None,
+        {"display": "none"},
+        None,
+        None,
+        {"display": "none"},
+        None,
+        None,
+        None,
+        0,
+        0,
+        False,
+        False,
+    )
 
 
 # Callback: Display selected document
@@ -1438,23 +1489,28 @@ def display_selected_document(selected_idx, data, detection_results):
         tc_pipeline = parsed_results.get("trigger_classification_pipeline", [])
         tc_e2e = parsed_results.get("trigger_classification_e2e", [])
         tc_merged = parsed_results.get("trigger_classification_merged", [])
-        
-        # Create annotated source display
-        source_display = create_source_display(
-            doc['text'],
-            {
-                "pipeline": tc_pipeline,
-                "e2e": tc_e2e,
-                "merged": tc_merged
-            }
-        )
+
+        combined_results = detection_results.get('argument_extraction_results')
+        if combined_results:
+            source_display = create_combined_annotation_display(doc['text'], combined_results)
+            source_title = "Combined Annotation View (Triggers + Arguments)"
+        else:
+            source_display = create_source_display(
+                doc['text'],
+                {
+                    "pipeline": tc_pipeline,
+                    "e2e": tc_e2e,
+                    "merged": tc_merged
+                }
+            )
+            source_title = "Annotated Source Text"
         
         return dbc.Card([
             dbc.CardBody([
                 html.Div([
-                    html.Strong(f"Document ID: {doc.get('id', 'N/A')}"),
+                    html.Label(f"Document ID: {doc.get('id', 'N/A')}"),
                     html.Div([
-                        html.Strong("Annotated Source Text:", style={"marginTop": "15px", "display": "block"}),
+                        html.Label(f"{source_title}:", style={"marginTop": "15px", "display": "block"}),
                         source_display
                     ], style={"marginTop": "10px"})
                 ])
@@ -1465,7 +1521,7 @@ def display_selected_document(selected_idx, data, detection_results):
     return dbc.Card([
         dbc.CardBody([
             html.Div([
-                html.Strong(f"Document ID: {doc.get('id', 'N/A')}"),
+                html.Label(f"Document ID: {doc.get('id', 'N/A')}"),
                 html.Div(doc['text'], style={
                     "marginTop": "10px",
                     "padding": "10px",
@@ -1754,31 +1810,19 @@ def run_event_detection(n_clicks, current_doc, dataset, model_type):
         
         results_display = dbc.Card([
             dbc.CardBody([
-                dbc.Row([
-                    dbc.Col([
-                        dbc.Card([
-                            dbc.CardHeader(html.H6(f"Pipeline Mode ({len(tc_pipeline)} triggers)", className="mb-0")),
-                            dbc.CardBody([
-                                format_triggers(tc_pipeline, "Pipeline Mode")
-                            ])
-                        ])
-                    ], md=4),
-                    dbc.Col([
-                        dbc.Card([
-                            dbc.CardHeader(html.H6(f"E2E Mode ({len(tc_e2e)} triggers)", className="mb-0")),
-                            dbc.CardBody([
-                                format_triggers(tc_e2e, "E2E Mode")
-                            ])
-                        ])
-                    ], md=4),
-                    dbc.Col([
-                        dbc.Card([
-                            dbc.CardHeader(html.H6(f"Merged Mode ({len(tc_merged)} triggers)", className="mb-0")),
-                            dbc.CardBody([
-                                format_triggers(tc_merged, "Merged Mode")
-                            ])
-                        ])
-                    ], md=4),
+                dbc.Tabs([
+                    dbc.Tab(
+                        label=f"Pipeline Mode ({len(tc_pipeline)} triggers)",
+                        children=[html.Div(format_triggers(tc_pipeline, "Pipeline Mode"), className="mt-2")]
+                    ),
+                    dbc.Tab(
+                        label=f"E2E Mode ({len(tc_e2e)} triggers)",
+                        children=[html.Div(format_triggers(tc_e2e, "E2E Mode"), className="mt-2")]
+                    ),
+                    dbc.Tab(
+                        label=f"Merged Mode ({len(tc_merged)} triggers)",
+                        children=[html.Div(format_triggers(tc_merged, "Merged Mode"), className="mt-2")]
+                    ),
                 ])
             ])
         ])
@@ -1877,14 +1921,6 @@ def run_argument_extraction(n_clicks, detection_results, current_doc, dataset, m
             )
             ae_results_by_mode[mode] = structured
         
-        # Create combined annotation display
-        combined_display = dbc.Card([
-            dbc.CardHeader(html.H6("Combined Annotation View (Triggers + Arguments)", className="mb-0")),
-            dbc.CardBody([
-                create_combined_annotation_display(current_doc['text'], ae_results_by_mode)
-            ])
-        ], className="mb-3")
-        
         # Create display with columns for event cards
         pipeline_events = ae_results_by_mode["pipeline"].get("events", [])
         e2e_events = ae_results_by_mode["e2e"].get("events", [])
@@ -1898,40 +1934,30 @@ def run_argument_extraction(n_clicks, detection_results, current_doc, dataset, m
         event_cards_display = dbc.Card([
             dbc.CardHeader(html.H6("Event Details", className="mb-0")),
             dbc.CardBody([
-                dbc.Row([
-                    dbc.Col([
-                        dbc.Card([
-                            dbc.CardHeader(html.H6(f"Pipeline Mode ({len(pipeline_events)} events)", className="mb-0")),
-                            dbc.CardBody([
-                                html.Div(pipeline_cards) if pipeline_cards else html.P("No events", className="text-muted")
-                            ])
-                        ])
-                    ], md=4),
-                    dbc.Col([
-                        dbc.Card([
-                            dbc.CardHeader(html.H6(f"E2E Mode ({len(e2e_events)} events)", className="mb-0")),
-                            dbc.CardBody([
-                                html.Div(e2e_cards) if e2e_cards else html.P("No events", className="text-muted")
-                            ])
-                        ])
-                    ], md=4),
-                    dbc.Col([
-                        dbc.Card([
-                            dbc.CardHeader(html.H6(f"Merged Mode ({len(merged_events)} events)", className="mb-0")),
-                            dbc.CardBody([
-                                html.Div(merged_cards) if merged_cards else html.P("No events", className="text-muted")
-                            ])
-                        ])
-                    ], md=4),
+                dbc.Tabs([
+                    dbc.Tab(
+                        label=f"Pipeline Mode ({len(pipeline_events)} events)",
+                        children=[
+                            html.Div(pipeline_cards, className="mt-2") if pipeline_cards else html.P("No events", className="text-muted mt-2")
+                        ]
+                    ),
+                    dbc.Tab(
+                        label=f"E2E Mode ({len(e2e_events)} events)",
+                        children=[
+                            html.Div(e2e_cards, className="mt-2") if e2e_cards else html.P("No events", className="text-muted mt-2")
+                        ]
+                    ),
+                    dbc.Tab(
+                        label=f"Merged Mode ({len(merged_events)} events)",
+                        children=[
+                            html.Div(merged_cards, className="mt-2") if merged_cards else html.P("No events", className="text-muted mt-2")
+                        ]
+                    ),
                 ])
             ])
         ])
         
-        # Combine both displays
-        results_display = html.Div([
-            combined_display,
-            event_cards_display
-        ])
+        results_display = html.Div([event_cards_display])
         
         # Store results
         detection_results['argument_extraction_results'] = ae_results_by_mode
