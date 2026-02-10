@@ -8,7 +8,7 @@ This is a comprehensive web-based annotation interface for cross-domain event ex
 
 ## Application Features (Screenshots)
 
-This section highlights the UI features with placeholders for screenshots captured from the running `web_dash_app.py` interface.
+This section highlights the UI features with placeholders for screenshots captured from the running `web_dash_app.py` interface. The application guides users from document upload and selection through multi-mode event detection and argument extraction, with combined visualizations to compare outputs. It also supports complete end-to-end extraction and schema-aware result saving across datasets.
 
 ### Document Ingestion and Selection
 - Upload JSON or JSONL files and review load status.
