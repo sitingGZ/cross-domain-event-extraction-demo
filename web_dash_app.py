@@ -51,6 +51,13 @@ ROLE_COLORS = ["#ff9999", "#66b3ff", "#99ff99", "#ffcc99", "#ff99cc", "#c2c2f0"]
 MODEL_TYPES = ["domain-specific", "cross-domain"]
 EXAMPLE_TEXT = "Argentina rejects reports that it has transferred uranium enrichment techniques to Iran (2958)."
 
+MODEL_PATHS = {'geneva': "sili03/EE_geneva",
+               'wikievents': "sili03/EE_wikievents",
+               'casie': "sili03/EE_casie",
+               'genia2013': "sili03/EE_genia2013",
+               'm2e2': "sili03/EE_m2e2",
+               'rams': "sili03/EE_rams",
+               'cross-domain': "sili03/EE_cross_domain"}
 
 class ModelCache:
     """Caches loaded models to avoid reloading."""
@@ -78,13 +85,27 @@ model_cache = ModelCache()
 def get_model_path(model_type: str, dataset: str) -> Tuple[str, str]:
     """Get tokenizer and model directory paths based on model type and dataset."""
     tokenizer_dir = "google-t5/t5-base"
-    
-    if model_type == "cross-domain":
-        model_dir = "/nfs/work/debi5729/google-t5-t5-base_split1_geneva_wikievents_casie_genia2013_m2e2_rams_amount_1_e2e_True_full_latest_expressive_prompt"
-    else:
-        model_dir = f"/nfs/work/debi5729/google-t5-t5-base_split1_{dataset}_amount_1_e2e_True_full_latest_expressive_prompt"
-    
+
+    model_key = "cross-domain" if model_type == "cross-domain" else dataset
+    model_dir = MODEL_PATHS.get(model_key)
+    if not model_dir:
+        raise ValueError(f"Model path not configured for key: {model_key}")
+
     return tokenizer_dir, model_dir
+
+
+def is_local_model_path(model_dir: str) -> bool:
+    """Return True if the model path should be validated as a local filesystem path."""
+    return model_dir.startswith(("/", "./", "../", "~"))
+
+
+def validate_model_path(model_dir: str) -> Optional[str]:
+    """Return an error message if a local model path is missing, otherwise None."""
+    if is_local_model_path(model_dir):
+        expanded = Path(model_dir).expanduser()
+        if not expanded.exists():
+            return f"Error: Model directory not found: {expanded}"
+    return None
 
 
 def create_event_card(event: Dict, title: str = "Event") -> dbc.Card:
@@ -1750,9 +1771,10 @@ def run_event_detection(n_clicks, current_doc, dataset, model_type):
         # Get model
         tokenizer_dir, model_dir = get_model_path(model_type, dataset)
         
-        # Check if model exists
-        if not os.path.exists(model_dir):
-            error_msg = dbc.Alert(f"Error: Model directory not found: {model_dir}", color="danger")
+        # Check if local model path exists
+        model_path_error = validate_model_path(model_dir)
+        if model_path_error:
+            error_msg = dbc.Alert(model_path_error, color="danger")
             return None, error_msg, dbc.Alert("Model not found", color="danger"), True, None, 0
         
         model, tokenizer = model_cache.get_model(model_type, tokenizer_dir, model_dir)
@@ -1994,8 +2016,9 @@ def run_complete_e2e(n_clicks, current_doc, dataset, model_type):
 
     try:
         tokenizer_dir, model_dir = get_model_path(model_type, dataset)
-        if not os.path.exists(model_dir):
-            error_msg = dbc.Alert(f"Error: Model directory not found: {model_dir}", color="danger")
+        model_path_error = validate_model_path(model_dir)
+        if model_path_error:
+            error_msg = dbc.Alert(model_path_error, color="danger")
             return None, None, {"display": "none"}, error_msg
 
         model, tokenizer = model_cache.get_model(model_type, tokenizer_dir, model_dir)
