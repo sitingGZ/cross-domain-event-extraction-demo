@@ -235,9 +235,9 @@ Results are saved in JSON with the following structure:
 ## Configuration
 
 ### Model Paths
-Update in `get_model_path()` function:
-- Cross-domain: `/nfs/work/debi5729/google-t5-t5-base_split1_geneva_wikievents_casie_genia2013_m2e2_rams_amount_1_e2e_True_full_latest_expressive_prompt`
-- Domain-specific: `/nfs/work/debi5729/google-t5-t5-base_split1_{dataset}_amount_1_e2e_True_full_latest_expressive_prompt`
+Model paths are configured in `MODEL_PATHS` within `web_dash_app.py` and are resolved in `get_model_path()`.
+- Cross-domain key: `cross-domain`
+- Domain-specific keys: `geneva`, `wikievents`, `casie`, `genia2013`, `m2e2`, `rams`
 
 ### Output Directory
 Annotation results are saved to:
@@ -274,6 +274,14 @@ The application uses these functions from `web_infer.py`:
 - Subsequent inferences use cached model
 - GPU acceleration recommended for faster inference
 - Typical inference time: 1-5 seconds per document
+
+### Example Model Loading Output
+```
+Loading model: domain-specific from sili03/EE_geneva
+config.json: 1.47kB [00:00, 6.70MB/s]
+model.safetensors: 100%|#############################| 892M/892M [00:09<00:00, 95.9MB/s]
+generation_config.json: 100%|###########################| 152/152 [00:00<00:00, 1.53MB/s]
+```
 
 ## Future Enhancements
 

@@ -8,8 +8,9 @@ services:
     environment:
       - PYTHONUNBUFFERED=1
       - TRANSFORMERS_CACHE=/app/.cache/transformers
+      - HF_HOME=/app/.cache/huggingface
+      - HUGGINGFACE_HUB_CACHE=/app/.cache/huggingface/hub
     volumes:
       - ./annotation_results:/app/annotation_results
-      - ./models:/nfs/work/debi5729
       - ./hf_cache:/app/.cache/transformers
     restart: unless-stopped
