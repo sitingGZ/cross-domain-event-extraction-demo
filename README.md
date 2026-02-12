@@ -68,7 +68,7 @@ This section highlights the UI features with placeholders for screenshots captur
 
 #### Stage 1: Event Detection
 Detect and classify event triggers with three modes:
-- **Pipeline Mode**: Trigger Identification → Classification (sequential)
+- **Pipeline Mode**: Trigger Identification -> Classification (sequential)
 - **E2E Mode**: Joint trigger identification and classification
 - **Merged Mode**: Combines results from both pipeline and e2e modes
 
@@ -119,7 +119,7 @@ pip install dash dash-bootstrap-components transformers torch
 ### Required Files
 - `web_infer.py`: Core inference functions
 - `pattern_tagprime.py`: Event schema definitions
-- Trained T5 models in `/nfs/work/debi5729/`
+- Trained T5 models in `https://huggingface.co/sili03`
 
 ## Running the Application
 
@@ -239,41 +239,15 @@ Model paths are configured in `MODEL_PATHS` within `web_dash_app.py` and are res
 - Cross-domain key: `cross-domain`
 - Domain-specific keys: `geneva`, `wikievents`, `casie`, `genia2013`, `m2e2`, `rams`
 
-### Output Directory
-Annotation results are saved to:
-`/user/debi5729/Cross-Domain-Text-Event-Extraction/annotation_results/`
 
-## Troubleshooting
+## Integration with infer.py
 
-### Model Not Found
-- Check that model directories exist
-- Verify dataset name is correct
-- Ensure CUDA is available if using GPU
-
-### Memory Issues
-- Close browser and restart if memory leaks
-- Model caching may accumulate memory
-- Consider running with smaller max_length
-
-### Empty Results
-- Check input text is not empty
-- Model may return empty predictions for unrelated text
-- Try different model type (domain-specific vs cross-domain)
-
-## Integration with web_infer.py
-
-The application uses these functions from `web_infer.py`:
+The application uses these functions from `infer.py`:
 - `run_single_inference_event_detection()`: Run trigger detection
 - `parse_and_merge_single_inference_event_detection_results()`: Parse and merge results
 - `run_single_inference_event_argument_extraction()`: Extract arguments
 - `structure_argument_extraction_pipeline_predictions()`: Structure argument results
 
-## Performance Notes
-
-- First inference per dataset/model combination takes longer (model loading)
-- Subsequent inferences use cached model
-- GPU acceleration recommended for faster inference
-- Typical inference time: 1-5 seconds per document
 
 ### Example Model Loading Output
 ```
@@ -282,12 +256,3 @@ config.json: 1.47kB [00:00, 6.70MB/s]
 model.safetensors: 100%|#############################| 892M/892M [00:09<00:00, 95.9MB/s]
 generation_config.json: 100%|###########################| 152/152 [00:00<00:00, 1.53MB/s]
 ```
-
-## Future Enhancements
-
-- [ ] Batch document processing
-- [ ] Real-time model selection
-- [ ] Custom schema support
-- [ ] Export to various formats (CSV, XML)
-- [ ] Collaborative annotation with multiple users
-- [ ] Model training from UI
