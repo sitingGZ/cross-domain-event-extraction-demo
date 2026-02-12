@@ -829,6 +829,7 @@ def create_extraction_layout() -> dbc.Container:
         dcc.Store(id='extraction-progress-store', data=0),
         dcc.Store(id='detection-running', data=False),
         dcc.Store(id='extraction-running', data=False),
+        dcc.Download(id='download-results'),
 
         # Interval components for progress updates
         dcc.Interval(id='detection-interval', interval=500, n_intervals=0, disabled=True),
@@ -2075,6 +2076,7 @@ def run_complete_e2e(n_clicks, current_doc, dataset, model_type):
 @callback(
     Output('all-results-store', 'data'),
     Output('validation-message', 'children', allow_duplicate=True),
+    Output('download-results', 'data'),
     Input('save-results-btn', 'n_clicks'),
     State('all-results-store', 'data'),
     State('event-detection-results-store', 'data'),
@@ -2098,7 +2100,7 @@ def save_results(n_clicks, all_results, current_results, complete_e2e_results, c
                 html.Br(),
                 "Please run Stage 2 or Complete E2E before saving."
             ], color="warning")
-            return all_results, error_msg
+            return all_results, error_msg, dash.no_update
         
         base_doc_id = None
         base_source = None
@@ -2111,7 +2113,7 @@ def save_results(n_clicks, all_results, current_results, complete_e2e_results, c
 
         if not base_doc_id or not base_source:
             error_msg = dbc.Alert("Error: Missing document context for saving.", color="danger")
-            return all_results, error_msg
+            return all_results, error_msg, dash.no_update
 
         # Initialize all_results if needed
         if not all_results:
@@ -2134,30 +2136,8 @@ def save_results(n_clicks, all_results, current_results, complete_e2e_results, c
             e2e_dataset = complete_e2e_results.get('dataset', 'unknown')
             all_results['complete_e2e'][e2e_dataset] = complete_e2e_results['complete_e2e_results']
         
-        # Save to file (use consistent filename based on doc_id)
-        output_dir = Path(__file__).resolve().parent / "annotation_results"
-        output_dir.mkdir(exist_ok=True)
-        
-        # Use fixed filename based on document ID (no UUID)
-        output_file = output_dir / f"annotated_{all_results['doc_id']}.json"
-        
-        # If file already exists, load it and update with new dataset schema
-        if output_file.exists():
-            with open(output_file, 'r') as f:
-                existing_data = json.load(f)
-            existing_data.setdefault('events', {})
-            existing_data.setdefault('complete_e2e', {})
-            if has_ae:
-                existing_data['events'][current_dataset] = ae_results
-            if has_complete_e2e:
-                existing_data['complete_e2e'][e2e_dataset] = complete_e2e_results['complete_e2e_results']
-            existing_data['doc_id'] = all_results['doc_id']
-            existing_data['source'] = all_results['source']
-            all_results = existing_data
-        
-        # Write updated results to file
-        with open(output_file, 'w') as f:
-            json.dump(all_results, f, indent=2)
+        download_filename = f"annotated_{all_results['doc_id']}.json"
+        download_payload = json.dumps(all_results, indent=2)
         
         doc_id = all_results.get('doc_id', 'Unknown')
         datasets_saved = list(all_results['events'].keys())
@@ -2168,14 +2148,14 @@ def save_results(n_clicks, all_results, current_results, complete_e2e_results, c
             html.Div(f"Document: {doc_id}", className="text-muted small"),
             html.Div(f"Schemas saved (Stage 1/2): {', '.join(datasets_saved)}", className="text-muted small"),
             html.Div(f"Schemas saved (Complete E2E): {', '.join(e2e_saved)}", className="text-muted small"),
-            html.Div(f"File: {output_file.name}", className="text-muted small")
+            html.Div(f"Download: {download_filename}", className="text-muted small")
         ], color="success")
         
-        return all_results, validation_msg
+        return all_results, validation_msg, dcc.send_string(download_payload, filename=download_filename)
         
     except Exception as e:
         error_msg = dbc.Alert(f"Error: {str(e)}", color="danger")
-        return all_results, error_msg
+        return all_results, error_msg, dash.no_update
 
 
 if __name__ == "__main__":
