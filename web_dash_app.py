@@ -716,27 +716,22 @@ def create_intro_layout() -> dbc.Container:
             ])
         ]),
         dbc.Row([
+           
             dbc.Col([
                 dbc.Card([
-                    dbc.CardHeader(html.Label("Features")),
+                    dbc.CardHeader(html.Label("Features of the Event Extraction Application (Frontend)")),
                     dbc.CardBody([
-                        html.Ul([
-                            html.Li("File upload (JSON with document strings)"),
-                            html.Li("Dataset/schema selection (geneva, wikievents, casie, genia2013, m2e2, rams)"),
-                            html.Li("Model type selection (domain-specific or cross-domain)"),
-                            html.Li("Event detection (pipeline, e2e, merged modes with highlighting)"),
-                            html.Li("Argument extraction (with argument highlighting and roles)"),
-                            html.Li("Multi-dataset annotation for same document"),
-                            html.Li("Result saving with hierarchical dataset organization"),
-                        ]),
-                        
-                    ])
-                ], className="mb-3")
-            ], md=7),
-            dbc.Col([
-                dbc.Card([
-                    dbc.CardHeader(html.Label("Modes")),
-                    dbc.CardBody([
+                         html.Img(
+                            src="./assets/example-ee.png",
+                            alt="Whole framework",
+                            style={
+                                "width": "100%",
+                                "height": "auto",
+                                "borderRadius": "6px",
+                                "marginTop": "12px",
+                                "marginBottom": "24px"
+                            }
+                        ),
                         html.Ul([
                             html.Li("Pipeline: Stage 1. Trigger Identification + Trigger Classification: Stage 2. Argument Extraction"),
                             html.Li("End-to-End: Trigger Classification directly from text"),
@@ -746,7 +741,33 @@ def create_intro_layout() -> dbc.Container:
                         dbc.Button("Go to Event Extraction", href="/app", color="primary", className="mt-2")
                     ])
                 ])
-            ], md=5)
+            ], md=6),
+             dbc.Col([
+                dbc.Card([
+                    dbc.CardHeader(html.Label("Unified Generative Framework for Event Extraction across Datasets/Schemas (Backend)" )),
+                    dbc.CardBody([
+                        html.Img(
+                            src="./assets/whole_framework.png",
+                            alt="Whole framework",
+                            style={
+                                "width": "100%",
+                                "height": "auto",
+                                "borderRadius": "6px",
+                                "marginTop": "12px",
+                                "marginBottom": "12px"
+                            }
+                        ),
+                        html.Ul([   
+                            html.Li("Event detection (pipeline, e2e, merged modes )"),
+                            html.Li("Argument extraction"),
+                            html.Li("Complete end-to-end extraction"),
+                            html.Li("Model type selection (domain-specific or cross-domain)"),
+                            html.Li("Multi-dataset annotation for same document: geneva, wikievents, casie, genia2013, m2e2, rams."),
+                        ]),
+                        
+                    ])
+                ], className="mb-3")
+            ], md=6),
         ]),
         html.H4("Current Available Dataset Schemas", className="mt-4 mb-2"),
         html.P("Expand each event type to view its argument roles."),

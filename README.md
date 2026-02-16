@@ -4,9 +4,17 @@
 
 This is a comprehensive web-based annotation interface for cross-domain event extraction tasks. It allows users to annotate documents using event detection and argument extraction tasks across multiple datasets.
 
+## Demostration Video
+
+<video controls width="100%">
+  <source src="assets/demo_event_extraction.mp4" type="video/mp4" />
+  Your browser does not support the video tag.
+</video>
+
+
 ## Features
 
-## Application Features (Screenshots)
+## Application Features
 
 This section highlights the UI features with placeholders for screenshots captured from the running `web_dash_app.py` interface. The application guides users from document upload and selection through multi-mode event detection and argument extraction, with combined visualizations to compare outputs. It also supports complete end-to-end extraction and schema-aware result saving across datasets.
 
@@ -14,37 +22,29 @@ This section highlights the UI features with placeholders for screenshots captur
 - Upload JSON or JSONL files and review load status.
 - Select documents from a dropdown with text previews.
 
-![Screenshot: Upload and document selector](assets/screenshots/upload_and_select.png)
 
 ### Event Detection (Stage 1)
 - Run trigger detection across pipeline, e2e, and merged modes.
 - Compare mode outputs with tabs, badges, and character offsets.
 
-![Screenshot: Event detection results tabs](assets/screenshots/event_detection_tabs.png)
 
 ### Argument Extraction (Stage 2)
 - Extract arguments from detected triggers with role labels.
 - Review event cards and structured argument lists per mode.
 
-![Screenshot: Argument extraction results](assets/screenshots/argument_extraction.png)
 
 ### Combined Annotation View
 - Visualize triggers and arguments together with consistent event colors.
 - Compare modes with tabbed views.
 
-![Screenshot: Combined annotation view](assets/screenshots/combined_annotation_view.png)
-
 ### Complete End-to-End Extraction
 - Run complete e2e extraction in one step.
 - Inspect both combined annotations and event cards.
 
-![Screenshot: Complete e2e results](assets/screenshots/complete_e2e.png)
 
 ### Saving Results Across Schemas
 - Save stage 1/2 and complete e2e outputs with schema-aware labels.
 - Continue annotating the same document across datasets.
-
-![Screenshot: Save results](assets/screenshots/save_results.png)
 
 ### 1. **File Upload**
 - Upload JSON files containing document strings
