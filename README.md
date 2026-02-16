@@ -6,10 +6,7 @@ This is a comprehensive web-based annotation interface for cross-domain event ex
 
 ## Demostration Video
 
-<video controls width="100%">
-  <source src="assets/demo_event_extraction.mp4" type="video/mp4" />
-  Your browser does not support the video tag.
-</video>
+[![Demo video thumbnail](assets/example-ee.png)](assets/demo_event_extraction.mp4)
 
 
 ## Features
