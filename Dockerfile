@@ -11,6 +11,6 @@ RUN pip install --upgrade pip \
 
 COPY . /app
 
-EXPOSE 8050
+EXPOSE 8051
 
-CMD ["python", "web_dash_app.py"]
+CMD ["python", "web_api_dash_app.py"]
