@@ -191,6 +191,10 @@ def load_datasets_all(main_root, ds_keys, split_group, tokenizer, tasks,  use_ex
             if amount is not None:
                 train_records.extend(split_dict.get('train', [])[:int(len(split_dict.get('train', [])) * amount)])
                 val_records.extend(split_dict.get('val', [])[:int(len(split_dict.get('val', [])) * amount)])
+                
+            #else:
+            #    train_records.extend(split_dict.get('train', []))
+            #    val_records.extend(split_dict.get('val', []))
     return train_records, val_records
 
 def tokenize_datasets_all(train_records, val_records, tokenizer):       
@@ -212,6 +216,11 @@ def load_datasets_all_combined(main_root, split_group, tasks,  amount=None):
             if amount is not None:
                 train_records.extend(split_dict.get('train', [])[:int(len(split_dict.get('train', [])) * amount)])
                 val_records.extend(split_dict.get('val', [])[:int(len(split_dict.get('val', [])) * amount)])
+                
+            #else:
+            #    train_records.extend(split_dict.get('train', []))
+            #    val_records.extend(split_dict.get('val', []))
+                
     return train_records, val_records
 
 
@@ -234,28 +243,43 @@ if __name__ == "__main__":
     datasets = ['geneva']
     tokenizer = AutoTokenizer.from_pretrained("google-t5/t5-small")
     # check the instances of records
-    datasets = ['geneva',"caise", "genia2013"]
-    train_records, val_records = load_datasets_all(main_root, datasets, split_group, tokenizer, tasks, use_expressive_prompt=False)
+    datasets = ['rams', 'wikievents', 'm2e2', 'geneva',"casie", "genia2013"]
+    train_records, val_records = load_datasets_all(main_root, datasets, split_group, tokenizer, tasks, use_expressive_prompt=True, amount=1)
     print(len(train_records), len(val_records))
-    for i in [10,  5000]:
+    for i in [10, 10000,  20000, 100000]:
         print("Example train record {}:".format(i), train_records[i])
     
-    for i in [10,  500]:
+    for i in [10, 1000, 3000]:
         print("Example val record {}:".format(i), val_records[i])
+        
+    save_val_records_path = f"{'_'.join(datasets)}_val_records.json"
+    import json
+    with open(save_val_records_path, 'w') as f:
+        json.dump(val_records, f, indent=4)
         
     combined_train_records, combined_val_records = load_datasets_all_combined(main_root, split_group, tasks, amount=1)
     print(len(combined_train_records), len(combined_val_records))
     
-    for i in [10,  5000]:
+    for i in [10, 10000, 20000]:
         print("Example combined train record {}:".format(i), combined_train_records[i])
-    for i in [10,  500]:
+    for i in [10, 1000, 3000]:
         print("Example combined val record {}:".format(i), combined_val_records[i])
+        
+    save_combined_val_records_path = "combined_val_records.json"
+    with open(save_combined_val_records_path, 'w') as f:
+        json.dump(combined_val_records, f, indent=4)
+        
+    
     
     train_records = train_records + combined_train_records
     val_records = val_records + combined_val_records
     train_ds, val_ds = tokenize_datasets_all(train_records, val_records, tokenizer)
     print("Number of tokenized train examples:", len(train_ds))
     print("Number of tokenized val examples:", len(val_ds)) 
+    
+    
+    
+    
     
     
     

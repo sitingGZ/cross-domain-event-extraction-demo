@@ -653,7 +653,7 @@ def get_dataset_instances_no_index_all(MAIN_ROOT, ds_key, split_group="split1", 
 
       
 if __name__ == "__main__":  
-  MAIN_ROOT = "/nfs/data/debi5729/processed_data"
+  MAIN_ROOT = "/fs/s6k/groups/agaai/processed_data"
   
   SPLITS = {
     "train": "train.json",

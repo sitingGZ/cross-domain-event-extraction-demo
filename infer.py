@@ -278,7 +278,8 @@ def run_single_inference_event_detection(
     max_length: int = 512,
     ) -> Dict:
     item: Dict = {
-        "doc_id": f"user-{uuid.uuid4().hex[:8]}",
+        #"doc_id": f"user-{uuid.uuid4().hex[:8]}",
+        "doc_id": doc_id,
         "source": plain_text,
         "trigger_identification": {},
         "trigger_classification_pipeline": {},
@@ -917,6 +918,7 @@ def present_parsed_output(item: Dict) -> Dict:
 
 
 
+
 def main(doc_id: str, tokenizer_dir: str, model_dir: str, domain: str, text: str, max_length: int):
     # run single-sample inference from command line
     model, tokenizer = construct_t5_model(
@@ -932,9 +934,9 @@ def main(doc_id: str, tokenizer_dir: str, model_dir: str, domain: str, text: str
         max_length=max_length,
     )
     parsed_event_detection = parse_and_merge_single_inference_event_detection_results(event_detection_item)
-    print('Parsed Event Detection Results: ', json.dumps(parsed_event_detection, indent=2))
+    #print('Parsed Event Detection Results: ', json.dumps(parsed_event_detection, indent=2))
     
-    # Stage 2: Argument Extraction
+    # Stage 2: Argument Extraction 
     argument_extraction_item = run_single_inference_event_argument_extraction(
         tokenizer=tokenizer,
         model=model,
@@ -960,10 +962,11 @@ def main(doc_id: str, tokenizer_dir: str, model_dir: str, domain: str, text: str
         "argument_extraction_pipeline_merged",
     ) if len(parsed_event_detection.get("trigger_classification_merged", [])) > 0 else {}
 
-    print('Parsed Argument Extraction Results (Pipeline): ', json.dumps(parsed_argument_extractions_pipeline, indent=2))
-    print('Parsed Argument Extraction Results (E2E): ', json.dumps(parsed_argument_extraction_e2e, indent=2))
-    if parsed_argument_extraction_merged:
-        print('Parsed Argument Extraction Results (Merged): ', json.dumps(parsed_argument_extraction_merged, indent=2))
+    #print('Parsed Argument Extraction Results (Pipeline): ', json.dumps(parsed_argument_extractions_pipeline, indent=2))
+    #print('Parsed Argument Extraction Results (E2E): ', json.dumps(parsed_argument_extraction_e2e, indent=2))
+    #if parsed_argument_extraction_merged:
+        #print('Parsed Argument Extraction Results (Merged): ', json.dumps(parsed_argument_extraction_merged, indent=2))
+    #    pass
     # parallel to pipeline of stage one + stage two.  Event Extraction End-to-End
     event_extraction_e2e_item = run_single_inference_event_extraction_e2e(
         doc_id=doc_id,
@@ -973,29 +976,57 @@ def main(doc_id: str, tokenizer_dir: str, model_dir: str, domain: str, text: str
         plain_text=text,
         max_length=max_length,
     )
-    print('Parsed Event Extraction E2E Results: ', json.dumps(
-        parse_e2e_event_extraction_predictions(
-            text,
-            event_extraction_e2e_item.get("event_extraction_e2e", {}).get("prediction", ""),
-        ),
-        indent=2,
-    ))
+    
+    parsed_event_extraction_e2e = parse_e2e_event_extraction_predictions(
+        text,
+        event_extraction_e2e_item.get("event_extraction_e2e", {}).get("prediction", ""),
+    )
+    #print('Parsed Event Extraction E2E Results: ', json.dumps(
+    #    parsed_event_extraction_e2e,
+    #    indent=2,
+    #))
 
-    # Combine all results
+    # Structure all results and return
+    structured_results = {
+        "doc_id": doc_id,
+        "source": text,
+        "argument_extraction_pipeline": parsed_argument_extractions_pipeline['events'] if parsed_argument_extractions_pipeline else [],
+        "argument_extraction_e2e": parsed_argument_extraction_e2e['events'] if parsed_argument_extraction_e2e else [],
+        "argument_extraction_merged": parsed_argument_extraction_merged if parsed_argument_extraction_merged else {},
+        "event_extraction_e2e": parsed_event_extraction_e2e,
+    }
+    return structured_results
     
 if __name__ == "__main__":
     # test run single inference and parse predictions
     doc_id = "01"
     text = "Argentina rejects reports that it has transferred uranium enrichment techniques to Iran (2958)."
-    model_dir = "/nfs/work/debi5729/google-t5-t5-base_split1_geneva_wikievents_casie_genia2013_m2e2_rams_amount_1_e2e_True_full_latest_expressive_prompt"
+    #model_dir = "/nfs/work/debi5729/google-t5-t5-base_split1_geneva_wikievents_casie_genia2013_m2e2_rams_amount_1_e2e_True_full_latest_expressive_prompt"
+    model_dir = "/nfs/work/debi5729/google-t5-t5-base_split1_geneva_amount_1_e2e_True_full_latest_expressive_prompt"
     tokenizer_dir = "google-t5/t5-base"
     ds_key = "geneva"
-    main(
+    text_path = "/nfs/work/debi5729/pipeline_for_VCR/m2e2_annotations/text_only_event.json"
+    text_data = json.load(open(text_path, "r"))
+    results = []
+    save_path = "/nfs/work/debi5729/pipeline_for_VCR/m2e2_annotations/structured_event_extraction_results.json"
+    for d in text_data:
+        doc_id = d['sentence_id']
+        text = d['sentence']
+        print('Running inference for doc_id: ', doc_id)
+        structured_results = main(
         doc_id=doc_id,
         tokenizer_dir=tokenizer_dir,
         model_dir=model_dir,
         domain=ds_key,
         text=text,
         max_length=512,
-    )
+        )
+        results.append(structured_results)
+        #save_path = "/nfs/work/debi5729/pipeline_for_VCR/m2e2_annotations/structured_event_extraction_results.json"
+        with open(save_path, "w") as f:
+            json.dump(results, f, indent=2)
+    with open(save_path, "w") as f:
+            json.dump(results, f, indent=2)
     # test parse functions
+    #print(json.dumps(structured_results, indent=2))
+    
