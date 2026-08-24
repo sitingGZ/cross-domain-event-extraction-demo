@@ -111,10 +111,8 @@ Results are saved with hierarchical structure:
 
 ## Installation
 
-### Dependencies
-```bash
-pip install dash dash-bootstrap-components transformers torch
-```
+### Prerequisites
+- Docker with Docker Compose support
 
 ### Required Files
 - `web_infer.py`: Core inference functions
@@ -123,11 +121,24 @@ pip install dash dash-bootstrap-components transformers torch
 
 ## Running the Application
 
+The simplest way to build and run the application is with Docker Compose:
+
 ```bash
-python web_dash_app.py
+docker compose up
 ```
 
-The application will start at `http://localhost:8050`
+The first run builds the image and may take several minutes while dependencies and models are downloaded. Once the container is ready, open `http://localhost:8050`.
+
+To stop the application, press `Ctrl+C`. To run it in the background, use `docker compose up -d`, then stop it with `docker compose down`.
+
+### Running Without Docker
+
+For local development, install the Python dependencies and run the Dash entrypoint directly:
+
+```bash
+pip install dash dash-bootstrap-components transformers torch
+python web_dash_app.py
+```
 
 ## User Workflow
 
