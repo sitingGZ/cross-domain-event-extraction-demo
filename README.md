@@ -34,7 +34,7 @@ This section highlights the UI features with placeholders for screenshots captur
 - Run complete e2e extraction in one step.
 - Inspect both combined annotations and event cards.
 
-![Screenshot: Complete e2e results](assets/screenshots/complete_e2e-ee.png)
+![Screenshot: Complete e2e results](assets/screenshots/complete-e2e-ee.png)
 
 ### Saving Results Across Schemas
 - Save stage 1/2 and complete e2e outputs with schema-aware labels.
